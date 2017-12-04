@@ -1,0 +1,8 @@
+__pycache__/
+3DS-SSL-Patch/
+body/
+certs/
+*.saz
+*.xml
+*.csv
+*.7z

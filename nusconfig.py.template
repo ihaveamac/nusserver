@@ -1,0 +1,64 @@
+port = 8080
+address = '192.168.1.2'
+
+content_prefix_url = 'http://your-server/path/to/CDN'
+uncached_content_prefix_url = 'http://your-server/path/to/CDN'
+
+cdn_directory = '/local/path/to/CDN'
+
+titlehash = {
+    # Old3DS
+    'ctr': {
+        'usa': 'RANDOM',
+        'eur': 'RANDOM',
+        'jpn': 'RANDOM',
+        'chn': 'RANDOM',
+        'kor': 'RANDOM',
+        'twn': 'RANDOM',
+    },
+
+    # New3DS
+    'ktr': {
+        'usa': 'RANDOM',
+        'eur': 'RANDOM',
+        'jpn': 'RANDOM',
+        'chn': 'RANDOM',
+        'kor': 'RANDOM',
+        'twn': 'RANDOM',
+    },
+
+    # the below is not implemented. see README for details.
+
+    # # WiiU
+    # 'wup': {
+    #     'usa': 'RANDOM',
+    #     'eur': 'RANDOM',
+    #     'jpn': 'RANDOM',
+    # },
+    #
+    # # WiiU vWii
+    # 'wupv': {
+    #     'usa': 'RANDOM',
+    #     'eur': 'RANDOM',
+    #     'jpn': 'RANDOM',
+    # },
+    #
+    # # Wii
+    # 'rvl': {
+    #     'usa': 'RANDOM',
+    #     'eur': 'RANDOM',
+    #     'jpn': 'RANDOM',
+    #     'kor': 'RANDOM',
+    #     'twn': 'RANDOM',
+    # },
+    #
+    # # DSi
+    # 'twl': {
+    #     'usa': 'RANDOM',
+    #     'eur': 'RANDOM',
+    #     'jpn': 'RANDOM',
+    #     'chn': 'RANDOM',
+    #     'kor': 'RANDOM',
+    #     'aus': 'RANDOM',
+    # },
+}
