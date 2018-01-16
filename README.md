@@ -60,6 +60,8 @@ Two ways of redirecting to a custom domain:
   * `https://nus.c.shop.nintendowifi.net/nus/services/NetUpdateSOAP` -> `http://your-server/nus/services/NetUpdateSOAP`
   * Replacing the ECommerceSOAP url will break eShop since it is also used for other purposes. I would guess one is used for updates, and the other for eShop, but I didn't try this yet.
 
+The 3DS does not handle HTTP redirects. Any redirect given will result in an error.
+
 #### Note about titlehashes
 The titlehash is a quick way for systems to determine if there is a new system update without comparing every installed title to a list returned from the server. The first request in the update process is for the titlehash. If it is identical to the saved hash, the process immediately ends.
 
