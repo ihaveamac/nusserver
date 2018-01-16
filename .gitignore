@@ -2,6 +2,8 @@ __pycache__/
 3DS-SSL-Patch/
 body/
 certs/
+venv*/
+nusconfig.py
 *.saz
 *.xml
 *.csv
