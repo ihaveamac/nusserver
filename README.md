@@ -40,11 +40,7 @@ Copy `nusconfig.py.template` to `nusconfig.py` and edit the values described bel
 | `twl` | DSi (NYI) |
 
 ### Certs
-Ticket certs must be set up. This must be done manually once. A tool will be made for this eventually.
-
-For 3DS, download any ticket from the official NUS, then copy the specified data and save to these files:
-* `certs/ctr-ticket1.cert`: offset `0x350` to `0x650`, size `0x300`
-* `certs/ctr-ticket2.cert`: offset `0x650` to `0xA50`, size `0x400`
+Ticket certs must be set up. `get-certs.py` can get these for 3DS, WiiU, and WiiU vWii. Requires the [requests](http://docs.python-requests.org/) module.
 
 ### Setting up a title list
 The title list is sent during the update process. This custom server reads it from a csv in the `/tidlist` directory. The format is a simple `titleid,version` layout. The filename format is `<codename>-<region>.csv`. For example, a USA Old3DS would use `/tidlist/ctr-usa.csv`.
@@ -54,7 +50,7 @@ There are some scripts in the `tools/` directory to generate a tidlist:
   * Example: `gen-tidlist-from-cias.py updates > tidlist/ctr-usa.csv`
 * `gen-tidlist-from-ninupdates.py` - Generate a tidlist from a ninupdates csv file.
   * Example: `gen-tidlist-from-ninupdates.py 8.1.0-19U.csv usa > tidlist/ctr-usa.csv`
-* `gen-tidlist-from-ninupdatesurl.py` - Generate a tidlist from a ninupdates url. Requires the `requests` module.
+* `gen-tidlist-from-ninupdatesurl.py` - Generate a tidlist from a ninupdates url. Requires the [requests](http://docs.python-requests.org/) module.
   * Example for Old 8.1.0-19U: `gen-tidlist-from-ninupdatesurl.py https://yls8.mtheall.com/ninupdates/reports.php?date=08-07-14_02-05-03&sys=ctr usa > tidlist/ctr-usa.csv`
 
 ## Using on console
