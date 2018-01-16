@@ -5,11 +5,9 @@ import nusconfig
 
 import base64
 import csv
-import http.client
 import http.server
 import os
 import time
-# from cgi import parse_header
 from lxml import etree
 from math import *
 
@@ -100,9 +98,9 @@ class UpdateHandler(http.server.BaseHTTPRequestHandler):
             size = int(self.headers['content-length'])
             data = self.rfile.read(size)
 
-        if self.path.startswith('/nus/services/NetUpdateSOAP'):
+        if self.path.startswith('/nus'):
             namespace = 'nus'
-        elif self.path.startswith('/ecs/services/ECommerceSOAP'):
+        elif self.path.startswith('/ecs'):
             namespace = 'ecs'
         else:
             self.log_message('Unknown path: ' + self.path)
@@ -121,8 +119,15 @@ class UpdateHandler(http.server.BaseHTTPRequestHandler):
             req_regionid = xmlaction.find(namespace + ':RegionId', xmlroot.nsmap).text
 
         try:
-            device_name = nuscommon.device_names[req_deviceid >> 28]
-            device_codename = nuscommon.device_codenames[req_deviceid >> 28]
+            device_identifier = (req_deviceid >> 28) & 0xF8
+            if device_identifier == 0x50:
+                req_virtualdevicetype = xmlaction.find(namespace + ':VirtualDeviceType', xmlroot.nsmap)
+                if req_virtualdevicetype is not None:
+                    if req_virtualdevicetype.text == '7':
+                        device_identifier = 0x60
+
+            device_name = nuscommon.device_names[device_identifier]
+            device_codename = nuscommon.device_codenames[device_identifier]
         except KeyError:
             self.log_error('Unknown device with ID {0} (0x{0:x}) requested {1}'.format(req_deviceid, action_name))
             self.send_response(501)
@@ -163,7 +168,7 @@ class UpdateHandler(http.server.BaseHTTPRequestHandler):
         elif action_name == 'GetSystemCommonETicket':
             self._load_certs(device_codename)
             for tid in xmlaction.findall(namespace + ':TitleId', xmlroot.nsmap):
-                with open(os.path.join(nusconfig.cdn_directory, tid.text, 'cetk'), 'rb') as f:
+                with open(os.path.join(nusconfig.cdn_directory[device_codename], tid.text, 'cetk'), 'rb') as f:
                     resp += se('CommonETicket', base64.b64encode(f.read(0x350)).decode('utf-8'))
 
             for c in self._certs[device_codename]:
@@ -176,8 +181,8 @@ class UpdateHandler(http.server.BaseHTTPRequestHandler):
             except KeyError:
                 self.log_error('Failed to get TitleHash for {} {}'.format(device_name, req_regionid))
                 return
-            resp += se('ContentPrefixURL', nusconfig.content_prefix_url)
-            resp += se('UncachedContentPrefixURL', nusconfig.content_prefix_url)
+            resp += se('ContentPrefixURL', nusconfig.content_prefix_url[device_codename])
+            resp += se('UncachedContentPrefixURL', nusconfig.content_prefix_url[device_codename])
             with open('tidlist/{}-{}.csv'.format(device_codename, req_regionid)) as c:
                 for row in csv.reader(c):
                     resp += '<TitleVersion>'
@@ -199,14 +204,22 @@ class UpdateHandler(http.server.BaseHTTPRequestHandler):
         elif action_name == 'GetAccountStatus':
             resp += se('ServiceStandbyMode', 'false')
             resp += se('AccountStatus', 'R')  # wat?
-            resp += se('ServiceURLs', se('Name', 'ContentPrefixURL') + se('URI', 'http://ccs.cdn.c.shop.nintendowifi.net/ccs/download'))
-            resp += se('ServiceURLs', se('Name', 'UncachedContentPrefixURL') + se('URI', 'http://ccs.c.shop.nintendowifi.net/ccs/download'))
-            resp += se('ServiceURLs', se('Name', 'SystemContentPrefixURL') + se('URI', nusconfig.content_prefix_url))
-            resp += se('ServiceURLs', se('Name', 'SystemUncachedContentPrefixURL') + se('URI', nusconfig.uncached_content_prefix_url))
-            resp += se('ServiceURLs', se('Name', 'EcsURL') + se('URI', 'https://ecs.c.shop.nintendowifi.net/ecs/services/ECommerceSOAP'))
-            resp += se('ServiceURLs', se('Name', 'IasURL') + se('URI', 'https://ias.c.shop.nintendowifi.net/ias/services/IdentityAuthenticationSOAP'))
-            resp += se('ServiceURLs', se('Name', 'CasURL') + se('URI', 'https://cas.c.shop.nintendowifi.net/cas/services/CatalogingSOAP'))
-            resp += se('ServiceURLs', se('Name', 'NusURL') + se('URI', 'http://{0.address}:{0.port}/nus/services/NetUpdateSOAP'.format(nusconfig)))
+            resp += se('ServiceURLs', se('Name', 'ContentPrefixURL')
+                       + se('URI', nuscommon.default_ecommercesoap_urls['ContentPrefixURL'][device_codename]))
+            resp += se('ServiceURLs', se('Name', 'UncachedContentPrefixURL')
+                       + se('URI', nuscommon.default_ecommercesoap_urls['UncachedContentPrefixURL'][device_codename]))
+            resp += se('ServiceURLs', se('Name', 'SystemContentPrefixURL')
+                       + se('URI', nusconfig.content_prefix_url[device_codename]))
+            resp += se('ServiceURLs', se('Name', 'SystemUncachedContentPrefixURL')
+                       + se('URI', nusconfig.uncached_content_prefix_url[device_codename]))
+            resp += se('ServiceURLs', se('Name', 'EcsURL')
+                       + se('URI', nuscommon.default_ecommercesoap_urls['EcsURL'][device_codename]))
+            resp += se('ServiceURLs', se('Name', 'IasURL')
+                       + se('URI', nuscommon.default_ecommercesoap_urls['IasURL'][device_codename]))
+            resp += se('ServiceURLs', se('Name', 'CasURL')
+                       + se('URI', nuscommon.default_ecommercesoap_urls['CasURL'][device_codename]))
+            resp += se('ServiceURLs', se('Name', 'NusURL')
+                       + se('URI', 'http://{0.address}:{0.port}/nus/services/NetUpdateSOAP'.format(nusconfig)))
 
         resp += '</{}Response>'.format(action_name)
 

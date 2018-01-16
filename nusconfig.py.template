@@ -1,10 +1,32 @@
 port = 8080
 address = '192.168.1.2'
 
-content_prefix_url = 'http://your-server/path/to/CDN'
-uncached_content_prefix_url = 'http://your-server/path/to/CDN'
+content_prefix_url = {
+    'ctr': 'http://your-server/path/to/CDN',
+    'ktr': 'http://your-server/path/to/CDN',
+    'wup': 'http://your-server/path/to/CDN',
+    'wupv': 'http://your-server/path/to/CDN',
+    'rvl': 'http://your-server/path/to/CDN',
+    'twl': 'http://your-server/path/to/CDN',
+}
 
-cdn_directory = '/local/path/to/CDN'
+uncached_content_prefix_url = {
+    'ctr': 'http://your-server/path/to/CDN',
+    'ktr': 'http://your-server/path/to/CDN',
+    'wup': 'http://your-server/path/to/CDN',
+    'wupv': 'http://your-server/path/to/CDN',
+    'rvl': 'http://your-server/path/to/CDN',
+    'twl': 'http://your-server/path/to/CDN',
+}
+
+cdn_directory = {
+    'ctr': '/local/path/to/CDN',
+    'ktr': '/local/path/to/CDN',
+    'wup': '/local/path/to/CDN',
+    'wupv': '/local/path/to/CDN',
+    'rvl': '/local/path/to/CDN',
+    'twl': '/local/path/to/CDN',
+}
 
 titlehash = {
     # Old3DS
@@ -27,22 +49,22 @@ titlehash = {
         'twn': 'RANDOM',
     },
 
+    # WiiU
+    'wup': {
+        'usa': 'RANDOM',
+        'eur': 'RANDOM',
+        'jpn': 'RANDOM',
+    },
+
+    # WiiU vWii
+    'wupv': {
+        'usa': 'RANDOM',
+        'eur': 'RANDOM',
+        'jpn': 'RANDOM',
+    },
+
     # the below is not implemented. see README for details.
 
-    # # WiiU
-    # 'wup': {
-    #     'usa': 'RANDOM',
-    #     'eur': 'RANDOM',
-    #     'jpn': 'RANDOM',
-    # },
-    #
-    # # WiiU vWii
-    # 'wupv': {
-    #     'usa': 'RANDOM',
-    #     'eur': 'RANDOM',
-    #     'jpn': 'RANDOM',
-    # },
-    #
     # # Wii
     # 'rvl': {
     #     'usa': 'RANDOM',

@@ -2,7 +2,7 @@
 
 This is my implementation of a custom Nintendo Update Server (NUS) in Python. Started in May or September 2017.
 
-Currently supports 3DS (Old+New). Wii U (+vWii) will be supported when I get around to developing/debugging it with my console. Other platforms may be supported if a way to use a custom server can be done.
+Currently supports 3DS (Old+New) and WiiU (+vWii). Other platforms may be supported if a way to use a custom server can be done.
 
 Only tested with Python 3.6, but it should work with at least 3.5.
 
@@ -18,20 +18,26 @@ Install `lxml` using pip.
 Copy `nusconfig.py.template` to `nusconfig.py` and edit the values described below:
 
 * `port` - Port for the server to listen on.
-* `address` - Address to access the server. This is not actually used for anything but printing a message.
-* `content_prefix_url` - URL to point to for title downloads. 3DS downloads title contents with this. Official is `http://nus.cdn.c.shop.nintendowifi.net/ccs/download`
-* `uncached_content_prefix_url` URL to point to for "uncached" title downloads. 3DS downloads title tmds with this. This can be the same as content_prefix_url. Official is `https://ccs.c.shop.nintendowifi.net/ccs/download`
-* `cdn_directory` - Path to directory with the cdn contents. This is only used to read tickets from when the system requests for tickets. Currently it must be layed out like cdn (i.e. `/your/path/<titleid>/cetk`), this should change in the future to something simpler.
+* `address` - Address to access the server.
+* `content_prefix_url` - URL to point to for title downloads, depending on console and region. 3DS/WiiU downloads title contents with this.
+  * Defaults:
+    * 3DS: `http://nus.cdn.c.shop.nintendowifi.net/ccs/download`
+    * WiiU: `http://nus.cdn.wup.shop.nintendo.net/ccs/download`
+* `uncached_content_prefix_url` URL to point to for "uncached" title downloads, depending on console and region. 3DS/WiiU downloads title tmds with this. This can be the same as content_prefix_url.
+  * Defaults:
+    * 3DS: `https://ccs.c.shop.nintendowifi.net/ccs/download`
+    * WiiU: `https://ccs.wup.shop.nintendo.net/ccs/download`
+* `cdn_directory` - Path to directory with the cdn contents, depending on console and region. This is only used to read tickets from when the system requests for tickets. Currently it must be layed out like cdn (i.e. `/your/path/<titleid>/cetk`), this should change in the future to something simpler.
 * `titlehash` - Titlehash to respond to, depending on console and region. `RANDOM` will generate and save a random titlehash, then always send it when the system requests it. See "Note about titlehashes" below for more information.
 
-  | Codename | Console name |
-  | --- | --- |
-  | `ctr` | Old3DS |
-  | `ktr` | New3DS |
-  | `wup` | WiiU (NYI) |
-  | `wupv` | WiiU vWii (NYI) |
-  | `rvl` | Wii (NYI) |
-  | `twl` | DSi (NYI) |
+| Codename | Console name |
+| --- | --- |
+| `ctr` | Old3DS |
+| `ktr` | New3DS |
+| `wup` | WiiU |
+| `wupv` | WiiU vWii |
+| `rvl` | Wii (NYI) |
+| `twl` | DSi (NYI) |
 
 ### Certs
 Ticket certs must be set up. This must be done manually once. A tool will be made for this eventually.
@@ -70,9 +76,13 @@ For 3DS (maybe others), a request for the titlehash is also made after downloadi
 This is why always sending a random hash won't work, so saving a random value and always sending it means the system can actually finish the update. This custom server allows resetting random hashes to another random value via a web interface. The page can be accessed at `http://your-server/`.
 
 ### Wii U
-Not implemented yet. Since there is no SSL patch, replacing a Root CA would be needed for redirection with Fiddler.
+Since there is no SSL patch, [replacing a Root CA](https://www.reddit.com/r/WiiUHacks/comments/6zfck3/guide_setting_up_mitm_to_log_and_preserve_services/) would be needed for redirection with Fiddler. This should not be done without a reliable way to restore the original root cert, such as CBHC.
 
-vWii is updated in Wii U mode, but uses its own title list and titlehash.
+An unknown request is (sometimes?) made to `idbe-wup.cdn.nintendo.net` during title downloads (Update/eShop). Replacing the default Root CA doesn't work because this uses a different one ("Nintendo Class 2 CA - G3"). Based on [WiiUBrew](http://wiiubrew.org/wiki/Nn_idbe.rpl), it may not be used for anything useful here, so disabling decryption of it should be fine.
+
+vWii is updated in Wii U mode, but uses its own title list and titlehash (determined by an additional field `nus:VirtualDeviceType` in the XML requests).
+
+If you use the common RedNAND implementation, updates will not be installed in RedNAND, likely because OSv255 (System Updater OS) is not patched to redirect to RedNAND.
 
 ## License / Credits
 `nuscommon.py`, `nusserver.py`, `tools/` are under the MIT license.
